@@ -1,15 +1,15 @@
 <template>
   <div>
     <div class="blog-component">
-      <v-container>
+      <v-container v-if="mainArticle">
         <v-row justify="center">
           <v-col cols="12" sm="12">
             <v-card class="overflow-hidden mb-15" elevation="5">
               <div class="position-relative">
-                <a href="#">
+                <NuxtLink :to="`/article/${mainArticle.slug}`">
                   <v-img
-                    src="https://images.pexels.com/photos/3244513/pexels-photo-3244513.jpeg"
-                    alt="blog"
+                    :src="mainArticle.cover"
+                    :alt="mainArticle.title"
                     max-height="500"
                     class="blog-img"
                   >
@@ -29,26 +29,26 @@
                   <v-overlay absolute class="overlay-container d-flex flex-column justify-end align-start">
                     <div class="mx-10 mb-10">
                       <div class="mb-5">
-                        <a href="#">
+                        <NuxtLink :to="`/category/${mainArticle.category.name}`">
                           <v-chip class="ma-2" color="accent" label text-color="white">
                             <v-icon left> mdi-label </v-icon>
-                            Multiplayer
+                            {{ mainArticle.category.name }}
                           </v-chip>
-                        </a>
+                        </NuxtLink>
                       </div>
                       <div class="mb-5">
-                        <h1 class="white--text d-none d-md-block">5 GAME MMORPG TERBAIK DI TAHUN 2024</h1>
-                        <h2 class="white--text d-block d-md-none">5 GAME MMORPG TERBAIK DI TAHUN 2024</h2>
+                        <h1 class="white--text d-none d-md-block">{{ mainArticle.title }}</h1>
+                        <h2 class="white--text d-block d-md-none">{{ mainArticle.title }}</h2>
                       </div>
                       <div class="white--text">
                         <span><v-icon small class="mb-2"> mdi-account-circle </v-icon></span>
-                        <span>Farid Aleksander</span>
+                        <span>{{ mainArticle.author.name }}</span>
                         <span>|</span>
-                        <span>6 September 2023</span>
+                        <span>{{ formatDate(mainArticle.published_at) }}</span>
                       </div>
                     </div>
                   </v-overlay>
-                </a>
+                </NuxtLink>
               </div>
             </v-card>
           </v-col>
@@ -71,23 +71,23 @@
             Start Blog
         ----------------------------------------------- -->
         <v-row class="mt-13 px-5" justify="center" style="display: flex; flex-wrap: wrap;">
-          <v-col v-for="n in 6" :key="n" cols="6" lg="4" class="px-3" style="display: flex;">
+          <v-col v-for="post in recommendedPosts" :key="post.id" cols="6" lg="4" class="px-3" style="display: flex;">
             <v-card elevation="1" class="blog-card overflow-hidden mb-5" style="flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
               <div class="position-relative mb-5">
-                <a href="#">
                   <v-img
-                    :src="require('@/assets/images/blog/img1.jpg')"
-                    alt="blog"
+                    :src="post.cover"
+                    :alt="post.title"
                     class="blog-img"
                   />
-                </a>
-                <div class="date-badge bg-info-grediant">
-                  Lorem
-                </div>
+                <NuxtLink :to="`/category/${post.category.name}`">
+                  <div class="date-badge bg-info-grediant">
+                    {{ post.category.name }}
+                  </div>
+                </NuxtLink>
               </div>
               <div class="px-5 pb-5">
-                <a
-                  href="#"
+                <NuxtLink
+                  :to="`/article/${post.slug}`"
                   class="
                     blog-title
                     text-decoration-none
@@ -99,21 +99,21 @@
                     -webkit-box-orient: vertical;
                   "
                   >
-                  <h3>Lorem ipsum dolor sit amet consectetur adipisicing elit. Id deserunt rerum rem.</h3></a
-                >
+                  <h3>{{ post.title }}</h3></NuxtLink>
                 <p class="my-5 text-justify d-none d-lg-block font-14">
-                      Sebuah deskripsi singkat tentang game yang akan datang. Sebuah deskripsi singkat tentang game yang akan datang. <a
-                        href="#"
-                        class="
-                          text-themecolor
-                          linking
-                          text-decoration-none
-                          d-flex
-                          align-center
-                        "
-                      >
-                        Baca Selengkapnya <i class="mdi mdi-arrow-right"></i>
-                      </a>
+                  {{ post.excerpt }}
+                  <NuxtLink
+                    :to="`/article/${post.slug}`"
+                    class="
+                      text-themecolor
+                      linking
+                      text-decoration-none
+                      d-flex
+                      align-center
+                    "
+                  >
+                    Baca Selengkapnya <i class="mdi mdi-arrow-right"></i>
+                  </NuxtLink>
                     </p>
               </div>
               <v-card-actions class="font-14 px-5 py-5 mt-15">
@@ -124,9 +124,9 @@
                   "
                   >
                   <span><v-icon small class="mb-1"> mdi-account-circle </v-icon></span>
-                  <span>Farid Aleksander</span>
+                  <span>{{ post.author.name }}</span>
                   <span>|</span>
-                  <span>6 September 2023</span>
+                  <span>{{ formatDate(post.published_at) }}</span>
                 </div>
               </v-card-actions>
             </v-card>
@@ -143,29 +143,29 @@
           </v-col>
         </v-row>
         <div class="mt-13">
-          <v-row v-for="n in 3" :key="n" style="max-width: min-content;display: contents;">
+          <v-row v-for="post in latestPosts" :key="post.id" style="max-width: min-content;display: contents;">
             <v-card elevation="1" class="blog-card overflow-hidden mb-15" outlined>
               <v-row>
                 <v-col cols="4" class="pb-0 pr-0">
                   <div class="position-relative">
-                    <a href="#">
                       <v-img
-                        :src="require('@/assets/images/blog/img1.jpg')"
-                        alt="blog"
+                        :src="post.cover"
+                        :alt="post.title"
                         height="100%"
                         max-height="240"
                         :aspect-ratio="0.45"
                       />
-                    </a>
-                    <div class="date-badge bg-info-grediant">
-                      FPS
-                    </div>
+                    <NuxtLink :to="`/category/${post.category.name}`">
+                      <div class="date-badge bg-info-grediant">
+                        {{ post.category.name }}
+                      </div>
+                    </NuxtLink>
                   </div>
                 </v-col>
                 <v-col class="pt-15">
                   <div class="px-0 pr-5 py-lg-5 pb-15">
-                    <a
-                      href="#"
+                    <NuxtLink
+                      :to="`/article/${post.slug}`"
                       class="
                         blog-title
                         text-decoration-none
@@ -177,7 +177,7 @@
                         -webkit-box-orient: vertical;
                       "
                       >
-                      <h3>Learn from small things to create something bigger.</h3></a
+                      <h3>{{ post.title }}</h3></NuxtLink
                     >
                     <p class="mt-5 mb-5 text-justify"
                     style="
@@ -187,20 +187,20 @@
                       -webkit-box-orient: vertical;
                     "
                     >
-                      Sebuah deskripsi singkat tentang game yang akan datang. Sebuah deskripsi singkat tentang game yang akan datang.
+                      {{ post.excerpt }}
                     </p>
-                    <a
-                        href="#"
-                        class="
-                          text-themecolor
-                          linking
-                          text-decoration-none
-                          d-flex
-                          align-center
-                        "
-                      >
-                        Baca Selengkapnya <i class="mdi mdi-arrow-right"></i>
-                      </a>
+                    <NuxtLink
+                      :to="`/article/${post.slug}`"
+                      class="
+                        text-themecolor
+                        linking
+                        text-decoration-none
+                        d-flex
+                        align-center
+                      "
+                    >
+                      Baca Selengkapnya <i class="mdi mdi-arrow-right"></i>
+                    </NuxtLink>
                   </div>
                   <v-card-actions class="font-14 px-0 py-5 mt-5">
                       <div class="grey--text pb-5"
@@ -210,9 +210,9 @@
                       "
                       >
                         <span><v-icon small class="mb-1"> mdi-account-circle </v-icon></span>
-                        <span>Farid Aleksander</span>
+                        <span>{{ post.author.name }}</span>
                         <span>|</span>
-                        <span>6 September 2023</span>
+                        <span>{{ formatDate(post.published_at) }}</span>
                       </div>
                   </v-card-actions>
                 </v-col>
@@ -230,12 +230,12 @@
         </v-row>
         <div class="mt-13">
           <v-list>
-            <v-list-item v-for="(category, index) in categories" :key="index">
+            <v-list-item v-for="cat in categories" :key="cat.id">
               <v-list-item-content>
-                <v-list-item-title><v-icon small>mdi-label </v-icon> {{ category.name }}</v-list-item-title>
+                <v-list-item-title><v-icon small>mdi-label </v-icon> {{ cat.name }}</v-list-item-title>
               </v-list-item-content>
               <v-list-item-action>
-                <v-chip>{{ category.postsCount }}</v-chip>
+                <v-chip :to="`/category/${cat.name}`">{{ cat.article_count }}</v-chip>
               </v-list-item-action>
             </v-list-item>
           </v-list>
@@ -250,7 +250,9 @@
         </v-row>
         <div class="mt-13">
           <div class="text-center">
-            <v-chip v-for="n in 10" :key="n" class="ma-2" color="accent">#Lorem</v-chip>
+            <v-chip :to="`/tag/${tag.name}`" v-for="tag in tags" :key="tag.id" class="ma-2" color="accent">
+              #{{ tag.name }}
+            </v-chip>
           </div>
         </div>
       </v-container>
@@ -262,15 +264,54 @@ export default {
   name: "BlogComponent",
   data() {
     return {
-      categories: [
-        { name: 'Technology', postsCount: 27 },
-        { name: 'Design', postsCount: 14 },
-        { name: 'Culture', postsCount: 19 },
-        { name: 'Business', postsCount: 22 },
-        { name: 'Politics', postsCount: 10 },
-      ],
+      mainArticle: null,
+      recommendedPosts: [],
+      latestPosts: [],
+      categories: [],
+      tags: [],
     };
   },
-  methods: {},
+  async fetch() {
+    // This fetch hook implements the exact "session" and caching logic you described.
+    
+    // --- Handle Posts ---
+    if (this.$store.getters['basic/isPostsCacheExpired']) {
+      // If cache is expired or empty, fetch new data
+      await this.$store.dispatch('basic/GetPosts', { limit: 20, commitToState: true });
+    }
+    const posts = this.$store.getters['basic/StatePosts'];
+    if (posts && posts.data.length > 0) {
+      this.mainArticle = posts.data[0];
+      this.recommendedPosts = posts.data.slice(1, 7);
+      this.latestPosts = posts.data;
+
+      console.log({
+        mainArticle: this.mainArticle,
+        recommendedPosts: this.recommendedPosts,
+        latestPosts: this.latestPosts,
+      });
+    }
+
+    // --- Handle Categories ---
+    if (this.$store.getters['basic/isCategoriesCacheExpired']) {
+      await this.$store.dispatch('basic/GetCategories', { commitToState: true });
+    }
+    this.categories = this.$store.getters['basic/StateCategories'];
+
+    // --- Handle Tags ---
+    if (this.$store.getters['basic/isTagsCacheExpired']) {
+      await this.$store.dispatch('basic/GetTags', { commitToState: true });
+    }
+    this.tags = this.$store.getters['basic/StateTags'];
+  },
+  // This ensures the logic runs on the server during `npm run generate`
+  fetchOnServer: true,
+  methods: {
+    formatDate(dateString) {
+      if (!dateString) return '';
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      return new Date(dateString).toLocaleDateString('id-ID', options);
+    },
+  },
 };
 </script>

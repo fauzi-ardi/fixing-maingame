@@ -1,4 +1,5 @@
 import colors from 'vuetify/es5/util/colors'
+import axios from 'axios' // Make sure this import is at the top
 
 export default {
   // Target: https://go.nuxtjs.dev/config-target
@@ -53,7 +54,7 @@ export default {
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
     // Workaround to avoid enforcing hard-coded localhost:3000: https://github.com/nuxt-community/axios-module/issues/308
-    baseURL: '/',
+    baseURL: 'http://127.0.0.1:8000/api/',
   },
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
@@ -78,10 +79,28 @@ export default {
   //     }
   //   }
 
+  // generate: {
+  //   routes: [
+  //     '/article/article1',
+  //     '/article/article2'
+  //   ]
+  // }
+
   generate: {
-    routes: [
-      '/article/article1',
-      '/article/article2'
-    ]
+    async routes() {
+      try {
+        const response = await axios.get('http://127.0.0.1:8000/api/articles/all');
+        // This next line depends on your API structure.
+        // If your API returns { "data": [...] }, this is correct.
+        const articles = response.data.data; 
+        const paths = articles.map(article => `/article/${article.slug}`);
+        console.log(`Found ${paths.length} routes to generate.`);
+
+        return paths;
+      } catch (error) {
+        console.error('Failed to fetch routes for generation:', error);
+        return [];
+      }
+    }
   }
 }
